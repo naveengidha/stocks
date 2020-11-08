@@ -1,5 +1,9 @@
 # stocks
 
+Repositories referenced:
+1. https://github.com/ranaroussi/yfinance
+2. https://github.com/shilewenuw/get_all_tickers
+
 ## To do list:
 
 1. Data collection
