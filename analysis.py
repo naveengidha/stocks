@@ -1,4 +1,4 @@
-import yfinance as yf, pandas as pd, shutil, os, time, glob, ssl
+import yfinance as yf, pandas as pd, shutil, os, time, glob
 from get_all_tickers import get_tickers as gt
 
 
@@ -41,8 +41,7 @@ failures = 0
 not_imported = 0
 i=0
 results = []
-#tickers = gt.get_tickers_filtered(mktcap_min=15000, mktcap_max=10000000)
-tickers = ["NIO","SQ"]
+tickers = gt.get_tickers_filtered(mktcap_min=150000, mktcap_max=10000000)
 print("Stocks to observe: " + str(len(tickers)))    
 
 while(i < len(tickers)) and (api_calls < 1800):
