@@ -67,8 +67,8 @@ failures = 0
 not_imported = 0
 i=0
 results = []
-tickers = gt.get_tickers_filtered(mktcap_min=150000, mktcap_max=10000000)
-#tickers = ["NIO", "SQ", "TSLA", "AMD"]
+#tickers = gt.get_tickers_filtered(mktcap_min=75000, mktcap_max=10000000)
+tickers = ["NIO", "SQ"]
 
 while(i < len(tickers)) and (api_calls < 1800):
     try:
@@ -96,9 +96,9 @@ while(i < len(tickers)) and (api_calls < 1800):
         # for multiple S/R levels, run data through for loop for N rows in data (include date)
         stock_SR = get_SR(stock, data.tail(1))
 
-        results.append([stock, data.tail(1).iloc[0,1], stock_SR[0], stock_SR[1], stock_SR[2], stock_SR[3], stock_SR[4], stock_SR[5], data.tail(1).iloc[0,4], stock_obv])
+        results.append([stock, data.tail(2).iloc[0,4], data.tail(1).iloc[0,1], stock_SR[0], stock_SR[1], stock_SR[2], stock_SR[3], data.tail(1).iloc[0,4], stock_obv])
 
-        df = pd.DataFrame(results, columns = ["Stock", "Open", "R1", "S1", "R2", "S2", "R3", "S3", "Close/Current", "OBV"])
+        df = pd.DataFrame(results, columns = ["Stock", "Previous Close", "Open", "R1", "S1", "R2", "S2", "Close/Current", "OBV"])
         # rank by OBV
         df["Ranked"] = df["OBV"].rank(ascending = False)
         # sort ranked stocks
