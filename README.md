@@ -6,6 +6,7 @@ Repositories referenced:
 
 ## To do list:
 * find high or above normal volumes for a stock that hasn't seen much % change yet
+  * can edit the report being saved (add 5 day total volume, % change, etc. and compare accordingly)
 
 ## Obtaining and managing data:
 
