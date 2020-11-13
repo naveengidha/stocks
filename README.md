@@ -4,7 +4,7 @@ Repositories referenced:
 1. https://github.com/ranaroussi/yfinance
 2. https://github.com/shilewenuw/get_all_tickers
 
-## To do list:
+## Obtaining and managing data:
 
 1. Data collection
 As a Data Scientist, a big part of what you'll be doing is collecting data — after all, you can't use data if you don't have any! Data scientists get data in a variety of different ways. They could use web scraping, use SQL commands to pull data from a database, or use an API, among other things.
