@@ -67,12 +67,12 @@ def get_SR(stock, data):
         return 2 * [-1]
 
 
-def get_open(stock, previous_close, current_open):
+def get_prcntg(stock, previous_close, current):
     """
-    Calculate opening %
+    Calculate current gain/loss % compared to yesterday close
     """
     try:
-        return (((current_open - previous_close) / previous_close) * 100)
+        return (((current - previous_close) / previous_close) * 100)
     except Exception as e:
         print("Error calculating open % for", stock, ":", e)
         return -1
@@ -92,17 +92,17 @@ def get_stock_details():
     for sector in Sectors:
         results = []
         i = 0
-        tickers = gt.get_biggest_n_tickers(20, sectors = sector.value)
+        tickers = gt.get_tickers_filtered(mktcap_min=500, mktcap_max=2000, sectors = sector.value)
         while(i < len(tickers)) and (api_calls < 1800):
             try:
                 # get stock data and save to individual CSVs
                 stock = tickers[i]
                 ticker_obj = yf.Ticker(str(stock))
                 ticker_data = ticker_obj.history(period="3mo")
-                ticker_data.to_csv(stock+".csv")
+                ticker_data.to_csv("CSV/"+stock+".csv")
 
                 # get stock historical data
-                stock_csv = glob.glob(stock+".csv")
+                stock_csv = glob.glob("CSV/"+stock+".csv")
                 data = pd.read_csv(stock_csv[0])
 
                 time.sleep(2)
@@ -114,11 +114,12 @@ def get_stock_details():
                 stock_SR = get_SR(stock, 
                                   data.tail(2))
 
-                open_pcntg = get_open(stock, 
+                # (previous close - current) / previous close = % relative to the closing price
+                gain_loss = get_prcntg(stock, 
                                       data.tail(2).iloc[0,4], 
-                                      data.tail(1).iloc[0,1])
+                                      data.tail(1).iloc[0,4])
 
-                if not ticker_obj.info['trailingEps']:
+                """if not ticker_obj.info['trailingEps']:
                     trailingEPS = -1
                 else:
                     trailingEPS = round(float(ticker_obj.info['trailingEps']), 2)
@@ -133,30 +134,27 @@ def get_stock_details():
                 if not ticker_obj.info['forwardPE']:
                     forwardPE = -1
                 else:
-                    forwardPE = round(float(ticker_obj.info['forwardPE']), 2)
+                    forwardPE = round(float(ticker_obj.info['forwardPE']), 2)"""
 
                 results.append([stock, 
                                 round(data.tail(2).iloc[0,4], 2),
                                 round(data.tail(1).iloc[0,1], 2), 
-                                round(open_pcntg, 2), 
+                                round(gain_loss, 2), 
                                 round(data.tail(1).iloc[0,4], 2), 
                                 round(stock_SR[0], 2), 
                                 round(stock_SR[1], 2), 
-                                f"{ticker_obj.info['marketCap']:,}", 
                                 f"{data.tail(1).iloc[0,5]:,}"])
 
                 df = pd.DataFrame(results, 
                                   columns = ["Stock", 
                                              "Previous close", 
                                              "Open price",
-                                             "Open %", 
+                                             "Gain/Loss %", 
                                              "Close/Current", 
                                              "Resistance", 
                                              "Support", 
-                                             "Market cap", 
                                              "Volume"])
             
-                df.sort_values("Market cap", inplace = True, ascending = False)
                 df.to_csv("reports/" + sector.name + ".csv", index = False)
             except Exception as e:
                 print("Error:", e)
@@ -168,6 +166,7 @@ def get_stock_details():
 
         print(sector.name)
         print(df.to_string(index = False))
+    print("API calls:",api_calls)
 
 #main
 get_stock_details()
