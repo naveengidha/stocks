@@ -4,6 +4,9 @@ Repositories referenced:
 1. https://github.com/ranaroussi/yfinance
 2. https://github.com/shilewenuw/get_all_tickers
 
+## To do list:
+* find high or above normal volumes for a stock that hasn't seen much % change yet
+
 ## Obtaining and managing data:
 
 1. Data collection
