@@ -78,6 +78,27 @@ def get_prcntg(stock, previous_close, current):
         return -1
 
 
+def get_AV(stock, data):
+    """
+    Get average volume over period of time
+    """
+
+    try:
+        total = 0
+        days = 0
+
+        for row in data:
+            total += row.iloc[days,5]
+            days += 1
+
+        average = total / days
+        return average
+
+    except Exception as e:
+        print(("Error calculating average volume for", stock, ":", e))
+        return -1
+
+
 def get_sectors():
     """
     Get sector tickers
@@ -143,6 +164,8 @@ def get_stock_details(tickers):
                                    data.tail(2).iloc[0,4], 
                                    data.tail(1).iloc[0,4])
 
+            delta = data.tail(1).iloc[0,4] - data.head(1).iloc[0,4]
+
             results.append([stock, 
                             round(data.tail(2).iloc[0,4], 2),
                             round(data.tail(1).iloc[0,1], 2), 
@@ -150,7 +173,8 @@ def get_stock_details(tickers):
                             round(data.tail(1).iloc[0,4], 2), 
                             round(stock_SR[0], 2), 
                             round(stock_SR[1], 2), 
-                            f"{data.tail(1).iloc[0,5]:,}"])
+                            f"{data.tail(1).iloc[0,5]:,}",
+                            round(delta, 2)])
 
             df = pd.DataFrame(results, 
                               columns = ["Stock", 
@@ -160,7 +184,8 @@ def get_stock_details(tickers):
                                          "Close/Current", 
                                          "Resistance", 
                                          "Support", 
-                                         "Volume"])
+                                         "Volume",
+                                         "Delta (1mo)"])
             
         except Exception as e:
             print("Error:", e)
