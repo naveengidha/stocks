@@ -5,6 +5,10 @@ Repositories referenced:
 2. https://github.com/shilewenuw/get_all_tickers
 
 ## To do list:
+* find high or above normal volumes for a stock that hasn't seen much % change yet
+  * can edit the report being saved (add 5 day total volume, % change, etc. and compare accordingly)
+
+## Obtaining and managing data:
 
 1. Data collection
 As a Data Scientist, a big part of what you'll be doing is collecting data — after all, you can't use data if you don't have any! Data scientists get data in a variety of different ways. They could use web scraping, use SQL commands to pull data from a database, or use an API, among other things.
