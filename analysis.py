@@ -78,95 +78,103 @@ def get_prcntg(stock, previous_close, current):
         return -1
 
 
-def get_stock_details():
+def get_sectors():
     """
-    Main loop
+    Get sector tickers
+    """
+
+    for sector in Sectors:
+        tickers = []
+        tickers = gt.get_tickers_filtered(mktcap_min=500, mktcap_max=2000, sectors = sector.value)
+
+        df = get_stock_details(tickers)
+        df.to_csv("reports/" + sector.name + ".csv", index = False)
+
+        print(df.to_string(index = False))
+
+
+def get_custom():
+    """
+    Custom list of stocks
+    """
+
+    tickers = ["NIO", "SQ", "MRNA", "PLTR"]
+
+    df = get_stock_details(tickers)
+    print(df.to_string(index = False))
+
+
+def get_stock_details(tickers):
+    """
+    Get stock details from tickers[] and return data frame
     API limits: 2,000/hour; 48,000/day
     """
 
     # variables to keep track of success/failure calls to API
+    i = 0
     api_calls = 0
     failures = 0
     not_imported = 0
+    results = []
 
-    for sector in Sectors:
-        results = []
-        i = 0
-        tickers = gt.get_tickers_filtered(mktcap_min=500, mktcap_max=2000, sectors = sector.value)
-        while(i < len(tickers)) and (api_calls < 1800):
-            try:
-                # get stock data and save to individual CSVs
-                stock = tickers[i]
-                ticker_obj = yf.Ticker(str(stock))
-                ticker_data = ticker_obj.history(period="3mo")
-                ticker_data.to_csv("CSV/"+stock+".csv")
+    while(i < len(tickers)) and (api_calls < 1800):
+        try:
+            # get stock data and save to individual CSVs
+            stock = tickers[i]
+            ticker_obj = yf.Ticker(str(stock))
+            ticker_data = ticker_obj.history(period="1mo")
+            ticker_data.to_csv("CSV/"+stock+".csv")
 
-                # get stock historical data
-                stock_csv = glob.glob("CSV/"+stock+".csv")
-                data = pd.read_csv(stock_csv[0])
+            # get stock historical data
+            stock_csv = glob.glob("CSV/"+stock+".csv")
+            data = pd.read_csv(stock_csv[0])
 
-                time.sleep(2)
+            time.sleep(2)
         
-                api_calls += 1
-                failures = 0
-                i += 1
+            api_calls += 1
+            failures = 0
+            i += 1
 
-                stock_SR = get_SR(stock, 
-                                  data.tail(2))
+            stock_SR = get_SR(stock, 
+                              data.tail(2))
 
-                # (previous close - current) / previous close = % relative to the closing price
-                gain_loss = get_prcntg(stock, 
-                                      data.tail(2).iloc[0,4], 
-                                      data.tail(1).iloc[0,4])
+            # (previous close - current) / previous close = % relative to the closing price
+            gain_loss = get_prcntg(stock, 
+                                   data.tail(2).iloc[0,4], 
+                                   data.tail(1).iloc[0,4])
 
-                """if not ticker_obj.info['trailingEps']:
-                    trailingEPS = -1
-                else:
-                    trailingEPS = round(float(ticker_obj.info['trailingEps']), 2)
+            results.append([stock, 
+                            round(data.tail(2).iloc[0,4], 2),
+                            round(data.tail(1).iloc[0,1], 2), 
+                            round(gain_loss, 2), 
+                            round(data.tail(1).iloc[0,4], 2), 
+                            round(stock_SR[0], 2), 
+                            round(stock_SR[1], 2), 
+                            f"{data.tail(1).iloc[0,5]:,}"])
 
-                if not ticker_obj.info['forwardEps']:
-                    forwardEPS = -1
-                else:
-                    forwardEPS = round(float(ticker_obj.info['forwardEps']), 2)
-
-                trailingPE = round(data.tail(1).iloc[0,4] / trailingEPS, 2)
-
-                if not ticker_obj.info['forwardPE']:
-                    forwardPE = -1
-                else:
-                    forwardPE = round(float(ticker_obj.info['forwardPE']), 2)"""
-
-                results.append([stock, 
-                                round(data.tail(2).iloc[0,4], 2),
-                                round(data.tail(1).iloc[0,1], 2), 
-                                round(gain_loss, 2), 
-                                round(data.tail(1).iloc[0,4], 2), 
-                                round(stock_SR[0], 2), 
-                                round(stock_SR[1], 2), 
-                                f"{data.tail(1).iloc[0,5]:,}"])
-
-                df = pd.DataFrame(results, 
-                                  columns = ["Stock", 
-                                             "Previous close", 
-                                             "Open price",
-                                             "Gain/Loss %", 
-                                             "Close/Current", 
-                                             "Resistance", 
-                                             "Support", 
-                                             "Volume"])
+            df = pd.DataFrame(results, 
+                              columns = ["Stock", 
+                                         "Previous close", 
+                                         "Open price",
+                                         "Gain/Loss %", 
+                                         "Close/Current", 
+                                         "Resistance", 
+                                         "Support", 
+                                         "Volume"])
             
-                df.to_csv("reports/" + sector.name + ".csv", index = False)
-            except Exception as e:
-                print("Error:", e)
-                if failures > 5:  # Move on to the next ticker if the current ticker fails more than 5 times
-                    i+=1
-                    not_imported += 1
-                api_calls += 1
-                failures += 1
+        except Exception as e:
+            print("Error:", e)
+            if failures > 5:  # Move on to the next ticker if the current ticker fails more than 5 times
+                i+=1
+                not_imported += 1
+            api_calls += 1
+            failures += 1
 
-        print(sector.name)
-        print(df.to_string(index = False))
-    print("API calls:",api_calls)
+    return df
+
+    print("API calls:", api_calls)
+    print("Not imported:", not_imported)
 
 #main
-get_stock_details()
+get_custom()
+#get_sectors()
