@@ -111,6 +111,7 @@ def get_sectors():
         df = get_stock_details(tickers)
         df.to_csv("reports/" + sector.name + ".csv", index = False)
 
+        print(sector.name)
         print(df.to_string(index = False))
 
 
@@ -119,7 +120,7 @@ def get_custom():
     Custom list of stocks
     """
 
-    tickers = ["NIO", "SQ", "MRNA", "PLTR"]
+    tickers = ["NIO", "SQ", "BABA", "MRNA", "PLTR", "TSLA", "XPEV", "YSG"]
 
     df = get_stock_details(tickers)
     print(df.to_string(index = False))
@@ -143,7 +144,7 @@ def get_stock_details(tickers):
             # get stock data and save to individual CSVs
             stock = tickers[i]
             ticker_obj = yf.Ticker(str(stock))
-            ticker_data = ticker_obj.history(period="1mo")
+            ticker_data = ticker_obj.history(period="5d")
             ticker_data.to_csv("CSV/"+stock+".csv")
 
             # get stock historical data
@@ -185,7 +186,7 @@ def get_stock_details(tickers):
                                          "Resistance", 
                                          "Support", 
                                          "Volume",
-                                         "Delta (1mo)"])
+                                         "Delta (5d)"])
             
         except Exception as e:
             print("Error:", e)
